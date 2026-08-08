@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Menu · Student & Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Background Food Icons -->
+    <div class="food-icons-bg">
+        <i class="fas fa-utensils"></i>
+        <i class="fas fa-hamburger"></i>
+        <i class="fas fa-pizza-slice"></i>
+        <i class="fas fa-ice-cream"></i>
+        <i class="fas fa-bread-slice"></i>
+        <i class="fas fa-apple-alt"></i>
+        <i class="fas fa-coffee"></i>
+        <i class="fas fa-cocktail"></i>
+        <i class="fas fa-fish"></i>
+        <i class="fas fa-egg"></i>
+        <i class="fas fa-cheese"></i>
+        <i class="fas fa-drumstick-bite"></i>
+    </div>
+    <div class="mess-building">
+        <i class="fas fa-building"></i>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div id="loginPanel">
+        <h2>
+            <i class="fas fa-utensil-spoon fork-icon"></i>
+            <span>Mess Menu Feedback System</span>
+            <i class="fas fa-utensil-knife knife-icon"></i>
+        </h2>
+        <p class="sub"><i class="fas fa-utensils"></i> Login to rate or manage menu</p>
+
+        <div class="role-tabs">
+            <button class="role-tab active" data-role="student"><i class="fas fa-user-graduate"></i> Student</button>
+            <button class="role-tab" data-role="admin"><i class="fas fa-user-tie"></i> Admin</button>
+        </div>
+
+        <div class="login-form">
+            <div id="studentFields">
+                <div class="login-row">
+                    <label><i class="fas fa-user"></i> Name</label>
+                    <input type="text" id="studentName" placeholder="e.g. Rahul Sharma" value="">
+                </div>
+                <div class="login-row">
+                    <label><i class="fas fa-id-card"></i> Reg. No.</label>
+                    <input type="text" id="studentReg" placeholder="e.g. 2024CS101" value="">
+                </div>
+                <div class="login-row">
+                    <label><i class="fas fa-building"></i> Department</label>
+                    <select id="studentDept">
+                        <option value="" disabled selected>Select Department</option>
+                        <option value="CSE">CSE</option>
+                        <option value="AIML">AIML</option>
+                        <option value="AIDS">AIDS</option>
+                        <option value="Cyber Security">Cyber Security</option>
+                        <option value="IT">IT</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Bio Tech">Bio Tech</option>
+                        <option value="MBA">MBA</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="adminFields" style="display:none;">
+                <div class="login-row">
+                    <label><i class="fas fa-user"></i> Admin Name</label>
+                    <input type="text" id="adminName" placeholder="Admin Name" value="">
+                </div>
+                <div class="login-row">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="adminPass" placeholder="Password" value="">
+                </div>
+            </div>
+
+            <button class="login-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <div id="loginError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp">
+        <div class="app-header">
+            <div class="user-greeting">
+                <h3 id="greetingText">Hello, <span id="displayName">Student</span></h3>
+                <span class="user-badge" id="displayRole">Student</span>
+                <span class="user-badge" id="displayDept">CSE</span>
+                <span class="user-badge" id="displayReg">2024CS101</span>
+                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div class="date-picker-container">
+                <i class="fas fa-calendar-day" style="color:#2c7da0;"></i>
+                <span id="weekDatePicker" style="font-weight: 600; color: #0a2a3b; font-size: 1rem; padding: 0.3rem 0.2rem;"></span>
+            </div>
+        </div>
+
+        <!-- STUDENT VIEW - Single Day -->
+        <div id="studentView">
+            <div class="single-day-container" id="singleDayContainer">
+                <!-- Rendered by JavaScript -->
+            </div>
+            <div class="footer-note">
+                <i class="fas fa-circle" style="color:#2c7da0; font-size:0.5rem;"></i> Click on any meal → rate food items (optional)
+            </div>
+        </div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="adminDashboard">
+            <div class="admin-dashboard">
+                <div class="filter-bar">
+                    <span class="dept-label"><i class="fas fa-building"></i> Department:</span>
+                    <select id="adminDeptFilter">
+                        <option value="all">All Departments</option>
+                        <option value="CSE">CSE</option>
+                        <option value="AIML">AIML</option>
+                        <option value="AIDS">AIDS</option>
+                        <option value="Cyber Security">Cyber Security</option>
+                        <option value="IT">IT</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Bio Tech">Bio Tech</option>
+                        <option value="MBA">MBA</option>
+                    </select>
+                    <button id="refreshDashboardBtn"><i class="fas fa-chart-bar"></i> Update Charts</button>
+                    <button id="manageMenuBtn" class="manage-menu-btn"><i class="fas fa-edit"></i> Manage Menu</button>
+                    <button id="clearAllDataBtn" class="clear-all-btn"><i class="fas fa-trash-alt"></i> Clear All</button>
+                    <span class="date-display" id="dashboardDateDisplay">Today: <span id="currentDateDisplay"></span></span>
+                </div>
+
+                <div class="dashboard-stats" id="statsCards">
+                    <div class="stat-card bad"><div class="number" id="badCount">0</div><div class="label">Bad</div></div>
+                    <div class="stat-card average"><div class="number" id="averageCount">0</div><div class="label">Average</div></div>
+                    <div class="stat-card good"><div class="number" id="goodCount">0</div><div class="label">Good</div></div>
+                    <div class="stat-card excellent"><div class="number" id="excellentCount">0</div><div class="label">Excellent</div></div>
+                </div>
+
+                <div class="chart-row">
+                    <div class="chart-container">
+                        <h4><i class="fas fa-chart-pie"></i> Daily Rating Distribution</h4>
+                        <div class="dept-indicator" id="dailyDeptLabel">Showing: All Departments</div>
+                        <div class="chart-wrapper">
+                            <canvas id="dailyChart" height="250"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h4><i class="fas fa-chart-pie"></i> Weekly Rating Distribution</h4>
+                        <div class="dept-indicator" id="weeklyDeptLabel">Showing: All Departments</div>
+                        <div class="chart-wrapper">
+                            <canvas id="weeklyChart" height="250"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h4><i class="fas fa-chart-pie"></i> Monthly Rating Distribution</h4>
+                        <div class="dept-indicator" id="monthlyDeptLabel">Showing: All Departments</div>
+                        <div class="chart-wrapper">
+                            <canvas id="monthlyChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MENU MANAGEMENT MODAL -->
+<div id="menuModal">
+    <div class="menu-modal-card">
+        <div class="menu-modal-header">
+            <h3><i class="fas fa-utensils"></i> Manage Daily Menu</h3>
+            <button class="menu-modal-close" id="menuModalClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="menuModalBody"></div>
+        <button class="menu-save-btn" id="menuSaveBtn"><i class="fas fa-save"></i> Save Menu Changes</button>
+        <div id="menuStatus" class="menu-status"></div>
+    </div>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detailOverlay">
+    <div class="detail-card">
+        <div class="detail-header">
+            <h3 id="detailDayTitle">Sunday · Breakfast</h3>
+            <button class="detail-close" id="detailCloseBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="detailMealContainer"></div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
