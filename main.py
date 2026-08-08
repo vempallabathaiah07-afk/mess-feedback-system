@@ -18,7 +18,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_PATH = os.environ.get("DB_PATH", "mess_feedback.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    DB_PATH = os.environ.get("DB_PATH", "/tmp/mess_feedback.db")
+else:
+    DB_PATH = os.environ.get("DB_PATH", os.path.join(BASE_DIR, "mess_feedback.db"))
+
 
 # Database helper functions
 def get_db():
@@ -88,15 +94,16 @@ class FeedbackSubmit(BaseModel):
 # --- static assets routes ---
 @app.get("/", response_class=HTMLResponse)
 def read_index():
-    return FileResponse("index.html")
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
 
 @app.get("/style.css")
 def read_css():
-    return FileResponse("style.css")
+    return FileResponse(os.path.join(BASE_DIR, "style.css"))
 
 @app.get("/app.js")
 def read_js():
-    return FileResponse("app.js")
+    return FileResponse(os.path.join(BASE_DIR, "app.js"))
+
 
 # --- API Endpoints ---
 
