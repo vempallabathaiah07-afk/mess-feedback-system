@@ -18,7 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_PATH = "mess_feedback.db"
+DB_PATH = os.environ.get("DB_PATH", "mess_feedback.db")
 
 # Database helper functions
 def get_db():
@@ -207,3 +207,9 @@ def clear_all():
     # Reset menu to default
     init_db()
     return {"status": "success", "message": "All database ratings cleared, menu reset to default"}
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
+
