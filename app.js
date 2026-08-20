@@ -56,8 +56,20 @@
     const detailDayTitle = document.getElementById('detailDayTitle');
     const detailMealContainer = document.getElementById('detailMealContainer');
     const detailCloseBtn = document.getElementById('detailCloseBtn');
+    const toastNotification = document.getElementById('toastNotification');
 
     // ---------- HELPERS ----------
+    let toastTimeout = null;
+    function showToast(message) {
+        if (!toastNotification) return;
+        toastNotification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        toastNotification.classList.add('active');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toastNotification.classList.remove('active');
+        }, 3500);
+    }
+
     function getLocalDateString(date) {
         const d = new Date(date);
         const y = d.getFullYear();
@@ -349,26 +361,27 @@
             });
 
             document.getElementById('detailSubmitBtn').addEventListener('click', async function() {
+                const savedDay = detailDay;
+                const savedMeal = detailMeal;
                 let feedbackData = loadCurrentStudentFeedback();
-                if (!feedbackData[detailDay]) feedbackData[detailDay] = {};
-                if (!feedbackData[detailDay][detailMeal]) feedbackData[detailDay][detailMeal] = {};
+                if (!feedbackData[savedDay]) feedbackData[savedDay] = {};
+                if (!feedbackData[savedDay][savedMeal]) feedbackData[savedDay][savedMeal] = {};
 
                 document.querySelectorAll('.detail-item-row').forEach(row => {
                     const itemName = row.dataset.item;
                     const selected = row.querySelector('.detail-item-rating button.selected');
                     if (selected) {
-                        feedbackData[detailDay][detailMeal][itemName] = selected.dataset.rating;
+                        feedbackData[savedDay][savedMeal][itemName] = selected.dataset.rating;
                     } else {
-                        delete feedbackData[detailDay][detailMeal][itemName];
+                        delete feedbackData[savedDay][savedMeal][itemName];
                     }
                 });
 
                 await apiSaveFeedback(feedbackData);
                 await apiGetFeedback(); // Refresh memory values
-                document.getElementById('detailFeedbackStatus').textContent = '✅ Ratings saved!';
-                document.getElementById('detailFeedbackStatus').style.color = '#2a6b4a';
-                renderStudentDay();
-                setTimeout(() => openStudentDetail(detailDay, detailMeal), 300);
+                closeDetail(); // Automatically close modal without pressing into (X) mark
+                renderStudentDay(); // Open specific day menu screen automatically
+                showToast(`Ratings saved successfully for ${savedDay} · ${savedMeal}!`);
             });
         }
     }

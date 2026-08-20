@@ -183,27 +183,32 @@ def get_feedback(dept: Optional[str] = "all"):
 
 @app.post("/api/feedback/{reg}")
 def save_feedback(reg: str, data: FeedbackSubmit):
-    with get_db() as conn:
-        # First, delete old feedback for this student/reg in this week to reflect full drops/modifications
-        conn.execute(
-            "DELETE FROM feedback WHERE reg = ? AND week_key = ?",
-            (reg, data.week_key)
-        )
-        
-        # Insert new ratings
-        for day, meals in data.feedback_data.items():
-            for meal, items in meals.items():
-                for item, rating in items.items():
-                    if rating:  # Only save valid ratings
-                        conn.execute(
-                            """
-                            INSERT INTO feedback (reg, name, dept, week_key, day, meal, item, rating)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                            """,
-                            (reg, data.name, data.dept, data.week_key, day, meal, item, rating)
-                        )
-        conn.commit()
-    return {"status": "success", "message": "Feedback saved successfully"}
+    try:
+        with get_db() as conn:
+            # First, delete old feedback for this student/reg in this week to reflect full drops/modifications
+            conn.execute(
+                "DELETE FROM feedback WHERE reg = ? AND week_key = ?",
+                (reg, data.week_key)
+            )
+            
+            # Insert new ratings
+            saved_count = 0
+            for day, meals in data.feedback_data.items():
+                for meal, items in meals.items():
+                    for item, rating in items.items():
+                        if rating:  # Only save valid ratings
+                            conn.execute(
+                                """
+                                INSERT INTO feedback (reg, name, dept, week_key, day, meal, item, rating)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                """,
+                                (reg, data.name, data.dept, data.week_key, day, meal, item, rating)
+                            )
+                            saved_count += 1
+            conn.commit()
+        return {"status": "success", "message": "Feedback saved successfully", "saved_ratings_count": saved_count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save feedback: {str(e)}")
 
 @app.post("/api/clear-all")
 def clear_all():
