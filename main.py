@@ -1,9 +1,12 @@
 import os
 import json
+import csv
+import io
 import sqlite3
+from datetime import datetime
 from typing import Dict, List, Optional
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -219,6 +222,57 @@ def clear_all():
     # Reset menu to default
     init_db()
     return {"status": "success", "message": "All database ratings cleared, menu reset to default"}
+
+@app.get("/api/export/ratings")
+def export_ratings(period: str = "daily", dept: Optional[str] = "all", target_date: Optional[str] = None):
+    try:
+        query = "SELECT reg, name, dept, week_key, day, meal, item, rating FROM feedback"
+        params = []
+        if dept and dept != "all":
+            query += " WHERE dept = ?"
+            params.append(dept)
+            
+        query += " ORDER BY week_key DESC, day ASC, meal ASC"
+        
+        with get_db() as conn:
+            cursor = conn.execute(query, params)
+            rows = cursor.fetchall()
+            
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["Reg No", "Student Name", "Department", "Week Key", "Day", "Meal", "Food Item", "Rating"])
+        
+        ref_date = datetime.strptime(target_date, "%Y-%m-%d") if target_date else datetime.now()
+        ref_day_name = ref_date.strftime("%A")
+        ref_month_prefix = ref_date.strftime("%Y-%m")
+        
+        for row in rows:
+            r_reg = row["reg"]
+            r_name = row["name"]
+            r_dept = row["dept"]
+            r_week = row["week_key"]
+            r_day = row["day"]
+            r_meal = row["meal"]
+            r_item = row["item"]
+            r_rating = row["rating"]
+            
+            if period == "daily" and r_day.lower() != ref_day_name.lower():
+                continue
+            elif period == "monthly" and not r_week.startswith(ref_month_prefix):
+                continue
+                
+            writer.writerow([r_reg, r_name, r_dept, r_week, r_day, r_meal, r_item, r_rating])
+            
+        csv_content = output.getvalue()
+        filename = f"mess_ratings_{period}_{dept}_{target_date or 'report'}.csv"
+        
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to export CSV: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

@@ -1166,4 +1166,71 @@ body {
     margin-top: 2rem;
 }
 
+/* Download Reports Container */
+.download-reports-container {
+    margin-top: 2.5rem;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    border-radius: 2rem;
+    padding: 1.8rem 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 20, 30, 0.05);
+    text-align: center;
+}
+
+.download-reports-header h4 {
+    color: #1b4053;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.download-desc {
+    font-size: 0.85rem;
+    color: #6a859b;
+    display: block;
+    margin-bottom: 1.2rem;
+}
+
+.download-buttons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.download-btn {
+    padding: 0.8rem 1.6rem;
+    border-radius: 60px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15);
+}
+
+.download-btn.daily-btn {
+    background: linear-gradient(135deg, #2c7da0 0%, #1a5276 100%);
+}
+
+.download-btn.weekly-btn {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+.download-btn.monthly-btn {
+    background: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%);
+}
+
+
 

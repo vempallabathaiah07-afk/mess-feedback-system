@@ -702,6 +702,28 @@
             el.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
         });
 
+        // Download Report Listeners
+        const downloadDailyBtn = document.getElementById('downloadDailyBtn');
+        const downloadWeeklyBtn = document.getElementById('downloadWeeklyBtn');
+        const downloadMonthlyBtn = document.getElementById('downloadMonthlyBtn');
+
+        function triggerDownload(period) {
+            const dept = adminDeptFilter ? adminDeptFilter.value : 'all';
+            const targetDate = getLocalDateString(selectedDate);
+            const url = `/api/export/ratings?period=${period}&dept=${dept}&target_date=${targetDate}`;
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `mess_ratings_${period}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast(`Downloading ${period.toUpperCase()} ratings report...`);
+        }
+
+        if (downloadDailyBtn) downloadDailyBtn.addEventListener('click', () => triggerDownload('daily'));
+        if (downloadWeeklyBtn) downloadWeeklyBtn.addEventListener('click', () => triggerDownload('weekly'));
+        if (downloadMonthlyBtn) downloadMonthlyBtn.addEventListener('click', () => triggerDownload('monthly'));
+
         // Pre-fetch menu on page load
         await apiGetMenu();
 
