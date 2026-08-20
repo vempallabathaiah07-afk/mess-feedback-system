@@ -100,7 +100,7 @@
             </div>
             <div class="date-picker-container">
                 <i class="fas fa-calendar-day" style="color:#2c7da0;"></i>
-                <span id="weekDatePicker" style="font-weight: 600; color: #0a2a3b; font-size: 1rem; padding: 0.3rem 0.2rem;"></span>
+                <input type="date" id="weekDatePicker">
             </div>
         </div>
 
@@ -146,26 +146,34 @@
                     <div class="stat-card excellent"><div class="number" id="excellentCount">0</div><div class="label">Excellent</div></div>
                 </div>
 
-                <div class="chart-row">
-                    <div class="chart-container">
-                        <h4><i class="fas fa-chart-pie"></i> Daily Rating Distribution</h4>
-                        <div class="dept-indicator" id="dailyDeptLabel">Showing: All Departments</div>
-                        <div class="chart-wrapper">
-                            <canvas id="dailyChart" height="250"></canvas>
-                        </div>
+                <!-- Item-wise Pie Charts Section -->
+                <div id="itemChartsContainer">
+                    <div style="text-align: center; margin-bottom: 1rem;">
+                        <h4 style="color: #1b4053; font-weight: 600;"><i class="fas fa-utensils"></i> Item-wise Rating Distribution</h4>
+                        <div class="dept-indicator" id="itemDeptLabel">Showing: All Departments</div>
                     </div>
-                    <div class="chart-container">
-                        <h4><i class="fas fa-chart-pie"></i> Weekly Rating Distribution</h4>
-                        <div class="dept-indicator" id="weeklyDeptLabel">Showing: All Departments</div>
-                        <div class="chart-wrapper">
-                            <canvas id="weeklyChart" height="250"></canvas>
-                        </div>
+                    <div id="itemChartsGrid" class="item-chart-grid"></div>
+                </div>
+
+                <!-- Weekly and Monthly Summary Charts -->
+                <div class="summary-charts-container">
+                    <div style="text-align: center; margin-bottom: 1rem; margin-top: 2rem;">
+                        <h4 style="color: #1b4053; font-weight: 600;"><i class="fas fa-chart-pie"></i> Weekly & Monthly Rating Summary</h4>
                     </div>
-                    <div class="chart-container">
-                        <h4><i class="fas fa-chart-pie"></i> Monthly Rating Distribution</h4>
-                        <div class="dept-indicator" id="monthlyDeptLabel">Showing: All Departments</div>
-                        <div class="chart-wrapper">
-                            <canvas id="monthlyChart" height="250"></canvas>
+                    <div class="chart-row">
+                        <div class="chart-container">
+                            <h4><i class="fas fa-calendar-week"></i> Weekly Rating Distribution</h4>
+                            <div class="dept-indicator" id="weeklyDeptLabel">Showing: All Departments</div>
+                            <div class="chart-wrapper">
+                                <canvas id="weeklyChart" height="250"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <h4><i class="fas fa-calendar-alt"></i> Monthly Rating Distribution</h4>
+                            <div class="dept-indicator" id="monthlyDeptLabel">Showing: All Departments</div>
+                            <div class="chart-wrapper">
+                                <canvas id="monthlyChart" height="250"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>

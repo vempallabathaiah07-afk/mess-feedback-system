@@ -13,7 +13,8 @@
     let selectedDate = new Date();
     let currentRole = 'student';
     let detailDay = '', detailMeal = '';
-    let dailyChart = null, weeklyChart = null, monthlyChart = null;
+    let itemCharts = {};
+    let weeklyChart = null, monthlyChart = null;
 
     // DOM refs
     const loginPanel = document.getElementById('loginPanel');
@@ -42,7 +43,8 @@
     const clearAllBtn = document.getElementById('clearAllDataBtn');
     const manageMenuBtn = document.getElementById('manageMenuBtn');
     const currentDateDisplay = document.getElementById('currentDateDisplay');
-    const dailyDeptLabel = document.getElementById('dailyDeptLabel');
+    const itemDeptLabel = document.getElementById('itemDeptLabel');
+    const itemChartsGrid = document.getElementById('itemChartsGrid');
     const weeklyDeptLabel = document.getElementById('weeklyDeptLabel');
     const monthlyDeptLabel = document.getElementById('monthlyDeptLabel');
 
@@ -390,23 +392,22 @@
         detailOverlay.classList.remove('active');
     }
 
-    // ---------- ADMIN DASHBOARD (Daily, Weekly, Monthly Pie Charts with Department Filter) ----------
+    // ---------- ADMIN DASHBOARD (Item-wise, Weekly, Monthly Pie Charts with Department Filter) ----------
     function updateAdminDashboard() {
         const deptFilter = adminDeptFilter.value;
         
-        const now = new Date();
+        const now = selectedDate || new Date();
         currentDateDisplay.textContent = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
         const deptDisplayName = deptFilter === 'all' ? 'All Departments' : deptFilter;
-        dailyDeptLabel.textContent = `Showing: ${deptDisplayName}`;
-        weeklyDeptLabel.textContent = `Showing: ${deptDisplayName}`;
-        monthlyDeptLabel.textContent = `Showing: ${deptDisplayName}`;
+        if (itemDeptLabel) itemDeptLabel.textContent = `Showing: ${deptDisplayName}`;
+        if (weeklyDeptLabel) weeklyDeptLabel.textContent = `Showing: ${deptDisplayName}`;
+        if (monthlyDeptLabel) monthlyDeptLabel.textContent = `Showing: ${deptDisplayName}`;
 
-        const todayStr = getTodayStr();
         const weekKey = getWeekKey(now);
         const monthKey = getMonthKey(now);
+        const selectedDayName = DAYS[now.getDay()];
 
-        let dailyRatings = { Bad: 0, Average: 0, Good: 0, Excellent: 0 };
         let weeklyRatings = { Bad: 0, Average: 0, Good: 0, Excellent: 0 };
         let monthlyRatings = { Bad: 0, Average: 0, Good: 0, Excellent: 0 };
 
@@ -429,15 +430,11 @@
                         const mealFb = dayFb[meal] || {};
                         for (let item in mealFb) {
                             const rating = mealFb[item];
-                            if (rating && dailyRatings[rating] !== undefined) {
-                                const todayDayName = DAYS[now.getDay()];
-                                if (wk === weekKey && day === todayDayName) {
-                                    dailyRatings[rating]++;
-                                }
-                                if (isCurrentWeek) {
+                            if (rating) {
+                                if (isCurrentWeek && weeklyRatings[rating] !== undefined) {
                                     weeklyRatings[rating]++;
                                 }
-                                if (isCurrentMonth) {
+                                if (isCurrentMonth && monthlyRatings[rating] !== undefined) {
                                     monthlyRatings[rating]++;
                                 }
                             }
@@ -501,17 +498,77 @@
             });
         }
 
-        const dailyCtx = document.getElementById('dailyChart').getContext('2d');
-        if (dailyChart) dailyChart.destroy();
-        dailyChart = createPieChart(dailyCtx, dailyRatings);
+        // Render Item-wise Pie Charts
+        for (let key in itemCharts) {
+            if (itemCharts[key]) itemCharts[key].destroy();
+        }
+        itemCharts = {};
 
-        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-        if (weeklyChart) weeklyChart.destroy();
-        weeklyChart = createPieChart(weeklyCtx, weeklyRatings);
+        const selectedDayItems = menuItems[selectedDayName] || {};
+        let itemDataList = [];
 
-        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
-        if (monthlyChart) monthlyChart.destroy();
-        monthlyChart = createPieChart(monthlyCtx, monthlyRatings);
+        for (let meal of MEALS) {
+            const items = selectedDayItems[meal] || [];
+            for (let item of items) {
+                let ratings = { Bad: 0, Average: 0, Good: 0, Excellent: 0 };
+                for (let reg in allFeedback) {
+                    const student = allFeedback[reg];
+                    for (let wk in student.weeks) {
+                        if (wk === weekKey) {
+                            const dayFb = student.weeks[wk]?.[selectedDayName] || {};
+                            const mealFb = dayFb[meal] || {};
+                            const r = mealFb[item];
+                            if (r && ratings[r] !== undefined) {
+                                ratings[r]++;
+                            }
+                        }
+                    }
+                }
+                itemDataList.push({ day: selectedDayName, meal, item, ratings });
+            }
+        }
+
+        if (itemChartsGrid) {
+            if (itemDataList.length === 0) {
+                itemChartsGrid.innerHTML = `<div class="no-feedback-msg"><i class="fas fa-info-circle"></i> No menu items added for ${selectedDayName}.</div>`;
+            } else {
+                let html = '';
+                itemDataList.forEach((dataObj, index) => {
+                    const canvasId = `itemChart_${index}`;
+                    html += `
+                        <div class="item-chart-card">
+                            <div class="item-name">${dataObj.item}</div>
+                            <div class="item-meal">${dataObj.meal}</div>
+                            <div class="item-chart-wrapper">
+                                <canvas id="${canvasId}" height="180"></canvas>
+                            </div>
+                        </div>
+                    `;
+                });
+                itemChartsGrid.innerHTML = html;
+
+                itemDataList.forEach((dataObj, index) => {
+                    const canvasId = `itemChart_${index}`;
+                    const canvasEl = document.getElementById(canvasId);
+                    if (canvasEl) {
+                        const ctx = canvasEl.getContext('2d');
+                        itemCharts[canvasId] = createPieChart(ctx, dataObj.ratings);
+                    }
+                });
+            }
+        }
+
+        const weeklyCtx = document.getElementById('weeklyChart')?.getContext('2d');
+        if (weeklyCtx) {
+            if (weeklyChart) weeklyChart.destroy();
+            weeklyChart = createPieChart(weeklyCtx, weeklyRatings);
+        }
+
+        const monthlyCtx = document.getElementById('monthlyChart')?.getContext('2d');
+        if (monthlyCtx) {
+            if (monthlyChart) monthlyChart.destroy();
+            monthlyChart = createPieChart(monthlyCtx, monthlyRatings);
+        }
     }
 
 
@@ -558,7 +615,7 @@
             adminDashboard.style.display = 'block';
         }
 
-        datePicker.textContent = formatDate(selectedDate);
+        datePicker.value = getLocalDateString(selectedDate);
 
         // Fetch data from backend API
         await apiGetMenu();
@@ -620,17 +677,30 @@
         });
         menuSaveBtn.addEventListener('click', saveMenuFromModal);
         
+        datePicker.value = getLocalDateString(selectedDate);
+
         // Auto-update charts when department filter changes
         adminDeptFilter.addEventListener('change', async () => {
             await apiGetFeedback(adminDeptFilter.value);
             updateAdminDashboard();
         });
 
+        // Date picker change listener
+        datePicker.addEventListener('change', function() {
+            if (this.value) {
+                const parts = this.value.split('-');
+                selectedDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (currentRole === 'student') {
+                    renderStudentDay();
+                } else {
+                    updateAdminDashboard();
+                }
+            }
+        });
+
         document.querySelectorAll('#studentName, #studentReg, #studentDept, #adminName, #adminPass').forEach(el => {
             el.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
         });
-
-        datePicker.textContent = formatDate(selectedDate);
 
         // Pre-fetch menu on page load
         await apiGetMenu();

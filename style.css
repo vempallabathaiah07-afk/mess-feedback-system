@@ -1119,3 +1119,51 @@ body {
     }
 }
 
+/* Item-wise Charts */
+.item-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.item-chart-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 1.5rem;
+    padding: 1rem;
+    border: 1px solid rgba(227, 235, 244, 0.6);
+    text-align: center;
+}
+
+.item-chart-card .item-name {
+    font-weight: 700;
+    color: #1b3f52;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+
+.item-chart-card .item-meal {
+    font-size: 0.7rem;
+    color: #6a859b;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.item-chart-card .item-chart-wrapper {
+    max-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.item-chart-card .item-chart-wrapper canvas {
+    max-height: 180px;
+    max-width: 100%;
+}
+
+.summary-charts-container {
+    margin-top: 2rem;
+}
+
+
